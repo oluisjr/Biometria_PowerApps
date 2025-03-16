@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticação Biométrica</title>
+</head>
+<body>
+    <h2>Autenticação Biométrica</h2>
+    <button id="authBtn">Autenticar</button>
+    <p id="status"></p>
+
+    <script>
+        async function authenticate() {
+            if (!window.PublicKeyCredential) {
+                document.getElementById("status").innerText = "Seu dispositivo não suporta autenticação biométrica.";
+                return;
+            }
+
+            try {
+                const credential = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: new Uint8Array(32),
+                        allowCredentials: [],
+                        timeout: 60000,
+                    }
+                });
+
+                if (credential) {
+                    document.getElementById("status").innerText = "Autenticação bem-sucedida!";
+                    sendToPowerApps(true);
+                }
+            } catch (error) {
+                document.getElementById("status").innerText = "Falha na autenticação!";
+                sendToPowerApps(false);
+            }
+        }
+
+        function sendToPowerApps(success) {
+            const message = JSON.stringify({ auth_success: success });
+            window.parent.postMessage(message, "*"); // Envia o resultado ao Power Apps
+        }
+
+        document.getElementById("authBtn").addEventListener("click", authenticate);
+    </script>
+</body>
+</html>
