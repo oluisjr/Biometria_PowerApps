@@ -1,0 +1,94 @@
+/* Define o tema baseado no modo do sistema */
+:root {
+    --bg-light: rgba(250, 250, 235, 1);
+    --bg-dark: rgba(50, 50, 35, 1);
+    --text-light: black;
+    --text-dark: white;
+    --button-light: rgba(30, 144, 255, 1);
+    --button-dark: rgba(70, 130, 180, 1);
+    --status-light: rgba(255, 255, 255, 0.2);
+    --status-dark: rgba(0, 0, 0, 0.3);
+}
+
+/* Aplica cores de fundo conforme o modo do sistema */
+@media (prefers-color-scheme: light) {
+    body {
+        background: var(--bg-light);
+        color: var(--text-light);
+    }
+    button {
+        background: var(--button-light);
+        color: white;
+    }
+    .status-message {
+        background: var(--status-light);
+        color: var(--text-light);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: var(--bg-dark);
+        color: var(--text-dark);
+    }
+    button {
+        background: var(--button-dark);
+        color: white;
+    }
+    .status-message {
+        background: var(--status-dark);
+        color: var(--text-dark);
+    }
+}
+
+/* Estiliza a página */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Centraliza o conteúdo */
+.container {
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Botão estilizado */
+button {
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* Mensagem de status com efeito de blur */
+.status-message {
+    margin-top: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Cores diferentes para sucesso e erro */
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
