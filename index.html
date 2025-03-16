@@ -18,13 +18,24 @@
             }
 
             try {
-                const credential = await navigator.credentials.get({
-                    publicKey: {
-                        challenge: new Uint8Array(32),
-                        allowCredentials: [],
-                        timeout: 60000,
-                    }
-                });
+                const publicKey = {
+                    challenge: new Uint8Array(32),
+                    rp: { name: "Meu App PowerApps" },
+                    user: {
+                        id: new Uint8Array(16),
+                        name: "usuário",
+                        displayName: "Usuário Teste"
+                    },
+                    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform", // Usa biometria do dispositivo
+                        userVerification: "required"
+                    },
+                    timeout: 60000,
+                    attestation: "none"
+                };
+
+                const credential = await navigator.credentials.create({ publicKey });
 
                 if (credential) {
                     document.getElementById("status").innerText = "Autenticação bem-sucedida!";
