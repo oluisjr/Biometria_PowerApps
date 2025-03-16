@@ -16,25 +16,61 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-            document.getElementById("title").classList.add("show");
             setTimeout(() => {
-                document.querySelector(".container").classList.add("expand");
-            }, 1600);
-        }, 300);
-    });
+                document.getElementById("title").classList.add("show");
+                setTimeout(() => {
+                    document.querySelector(".container").classList.add("expand");
+                }, 800);
+            }, 300);
+        });
 
-    function authenticate() {
-        const popup = document.querySelector(".popup");
-        const isSuccess = Math.random() > 0.5; // Simula autenticação aleatória
-        
-        popup.innerText = isSuccess ? "Autenticação bem-sucedida!" : "Falha na autenticação!";
-        popup.classList.add("show", isSuccess ? "success" : "error");
+        async function authenticate() {
+            if (!window.PublicKeyCredential) {
+                showPopup("Seu dispositivo não suporta autenticação biométrica.", false);
+                return;
+            }
 
-        setTimeout(() => {
-            popup.classList.remove("show");
-        }, 3000);
-    }
+            try {
+                const publicKey = {
+                    challenge: new Uint8Array(32),
+                    rp: { name: "Meu App PowerApps" },
+                    user: {
+                        id: new Uint8Array(16),
+                        name: "usuário",
+                        displayName: "Usuário Teste"
+                    },
+                    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",
+                        userVerification: "required"
+                    },
+                    timeout: 60000,
+                    attestation: "none"
+                };
+
+                const credential = await navigator.credentials.create({ publicKey });
+
+                if (credential) {
+                    showPopup("Autenticação bem-sucedida! ✅", true);
+                }
+            } catch (error) {
+                showPopup("Falha na autenticação! ❌", false);
+            }
+        }
+
+        function showPopup(message, success) {
+            // Esconde a mensagem de status
+            const statusEl = document.getElementById("status");
+            statusEl.style.display = "none";
+
+            // Exibe o popup com a mensagem
+            alert(message);
+
+            // Pode-se adicionar também uma verificação de sucesso ou falha no popup,
+            // mas neste caso o alert simples já é suficiente.
+        }
+
+        document.getElementById("authBtn").addEventListener("click", authenticate);
     </script>
 </body>
 </html>
