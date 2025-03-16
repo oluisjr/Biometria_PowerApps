@@ -7,13 +7,35 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <h2 id="title">Autenticação Biométrica</h2>
+
     <div class="container">
-        <h2>Autenticação Biométrica</h2>
         <button id="authBtn">Autenticar</button>
         <p id="status" class="status-message">Aguardando autenticação...</p>
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+            document.getElementById("title").classList.add("show");
+            setTimeout(() => {
+                document.querySelector(".container").classList.add("expand");
+            }, 1600);
+        }, 300);
+    });
+
+    function authenticate() {
+        const popup = document.querySelector(".popup");
+        const isSuccess = Math.random() > 0.5; // Simula autenticação aleatória
+        
+        popup.innerText = isSuccess ? "Autenticação bem-sucedida!" : "Falha na autenticação!";
+        popup.classList.add("show", isSuccess ? "success" : "error");
+
+        setTimeout(() => {
+            popup.classList.remove("show");
+        }, 3000);
+    }
+
         async function authenticate() {
             if (!window.PublicKeyCredential) {
                 updateStatus("Seu dispositivo não suporta autenticação biométrica.", false);
@@ -42,11 +64,9 @@
 
                 if (credential) {
                     updateStatus("Autenticação bem-sucedida! ✅", true);
-                    sendToPowerApps(true);
                 }
             } catch (error) {
                 updateStatus("Falha na autenticação! ❌", false);
-                sendToPowerApps(false);
             }
         }
 
@@ -55,11 +75,6 @@
             statusEl.textContent = message;
             statusEl.classList.remove("success", "error");
             statusEl.classList.add(success ? "success" : "error");
-        }
-
-        function sendToPowerApps(success) {
-            const message = JSON.stringify({ auth_success: success });
-            window.parent.postMessage(message, "*");
         }
 
         document.getElementById("authBtn").addEventListener("click", authenticate);
