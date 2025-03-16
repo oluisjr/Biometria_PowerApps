@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autenticação Biométrica</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Autenticação Biométrica</h2>
-    <button id="authBtn">Autenticar</button>
-    <p id="status"></p>
+    <div class="container">
+        <h2>Autenticação Biométrica</h2>
+        <button id="authBtn">Autenticar</button>
+        <p id="status" class="status-message">Aguardando autenticação...</p>
+    </div>
 
     <script>
         async function authenticate() {
             if (!window.PublicKeyCredential) {
-                document.getElementById("status").innerText = "Seu dispositivo não suporta autenticação biométrica.";
+                updateStatus("Seu dispositivo não suporta autenticação biométrica.", false);
                 return;
             }
 
@@ -28,7 +31,7 @@
                     },
                     pubKeyCredParams: [{ type: "public-key", alg: -7 }],
                     authenticatorSelection: {
-                        authenticatorAttachment: "platform", // Usa biometria do dispositivo
+                        authenticatorAttachment: "platform",
                         userVerification: "required"
                     },
                     timeout: 60000,
@@ -38,18 +41,25 @@
                 const credential = await navigator.credentials.create({ publicKey });
 
                 if (credential) {
-                    document.getElementById("status").innerText = "Autenticação bem-sucedida!";
+                    updateStatus("Autenticação bem-sucedida! ✅", true);
                     sendToPowerApps(true);
                 }
             } catch (error) {
-                document.getElementById("status").innerText = "Falha na autenticação!";
+                updateStatus("Falha na autenticação! ❌", false);
                 sendToPowerApps(false);
             }
         }
 
+        function updateStatus(message, success) {
+            const statusEl = document.getElementById("status");
+            statusEl.textContent = message;
+            statusEl.classList.remove("success", "error");
+            statusEl.classList.add(success ? "success" : "error");
+        }
+
         function sendToPowerApps(success) {
             const message = JSON.stringify({ auth_success: success });
-            window.parent.postMessage(message, "*"); // Envia o resultado ao Power Apps
+            window.parent.postMessage(message, "*");
         }
 
         document.getElementById("authBtn").addEventListener("click", authenticate);
