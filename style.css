@@ -4,13 +4,15 @@
     --bg-dark: rgba(50, 50, 35, 1);
     --text-light: black;
     --text-dark: white;
-    --button-light: rgba(30, 144, 255, 1);
-    --button-dark: rgba(70, 130, 180, 1);
-    --status-light: rgba(255, 255, 255, 0.2);
-    --status-dark: rgba(0, 0, 0, 0.3);
+    --button-light: rgba(50, 50, 35, 1);
+    --button-dark: rgba(220, 220, 200, 1);
+    --popup-light: rgba(255, 255, 255, 0.9);
+    --popup-dark: rgba(20, 20, 20, 0.9);
+    --shadow-light: rgba(0, 0, 0, 0.2);
+    --shadow-dark: rgba(255, 255, 255, 0.2);
 }
 
-/* Aplica cores de fundo conforme o modo do sistema */
+/* Aplica cores conforme o tema do dispositivo */
 @media (prefers-color-scheme: light) {
     body {
         background: var(--bg-light);
@@ -20,9 +22,10 @@
         background: var(--button-light);
         color: white;
     }
-    .status-message {
-        background: var(--status-light);
+    .popup {
+        background: var(--popup-light);
         color: var(--text-light);
+        box-shadow: 0 4px 10px var(--shadow-light);
     }
 }
 
@@ -35,9 +38,10 @@
         background: var(--button-dark);
         color: white;
     }
-    .status-message {
-        background: var(--status-dark);
+    .popup {
+        background: var(--popup-dark);
         color: var(--text-dark);
+        box-shadow: 0 4px 10px var(--shadow-dark);
     }
 }
 
@@ -50,38 +54,87 @@ body {
     height: 100vh;
     margin: 0;
     transition: background 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
 }
 
-/* Centraliza o conteúdo */
+/* Título animado, SEMPRE na frente do container */
+#title {
+    font-size: 24px;
+    font-weight: bold;
+    position: absolute;
+    top: 10%;
+    opacity: 1;
+    z-index: 10;
+    animation: titleDrop 1.5s ease-out forwards;
+}
+
+/* Animação do título descendo */
+@keyframes titleDrop {
+    0% {
+        top: 10%;
+    }
+    100% {
+        top: 35%;
+    }
+}
+
+/* O container cresce ATRÁS do título */
 .container {
+    position: absolute;
+    top: 43%;
+    width: 280px;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 40px;
     text-align: center;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    overflow: hidden;
+    transition: height 0.8s ease-in-out, padding 0.8s ease-in-out;
+    z-index: 5;
 }
 
-/* Botão estilizado */
+/* Classe ativada após a animação do título */
+.container.expand {
+    height: 100px;
+    padding: 20px;
+}
+
+/* Botão corretamente posicionado dentro do container */
 button {
     font-size: 18px;
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     cursor: pointer;
-    transition: transform 0.2s ease-in-out;
+    transform: scale(0);
+    transition: transform 0.4s ease-in-out;
 }
 
-button:hover {
-    transform: scale(1.05);
+.container.expand button {
+    transform: scale(1);
 }
 
-/* Mensagem de status com efeito de blur */
-.status-message {
-    margin-top: 15px;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-    transition: opacity 0.3s ease-in-out;
+/* Popup para o status da autenticação */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+/* Popup aparece quando ativado */
+.popup.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Cores diferentes para sucesso e erro */
