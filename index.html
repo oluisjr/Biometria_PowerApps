@@ -35,48 +35,6 @@
             popup.classList.remove("show");
         }, 3000);
     }
-        async function authenticate() {
-            if (!window.PublicKeyCredential) {
-                updateStatus("Seu dispositivo não suporta autenticação biométrica.", false);
-                return;
-            }
-
-            try {
-                const publicKey = {
-                    challenge: new Uint8Array(32),
-                    rp: { name: "Meu App PowerApps" },
-                    user: {
-                        id: new Uint8Array(16),
-                        name: "usuário",
-                        displayName: "Usuário Teste"
-                    },
-                    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-                    authenticatorSelection: {
-                        authenticatorAttachment: "platform",
-                        userVerification: "required"
-                    },
-                    timeout: 60000,
-                    attestation: "none"
-                };
-
-                const credential = await navigator.credentials.create({ publicKey });
-
-                if (credential) {
-                    updateStatus("Autenticação bem-sucedida! ✅", true);
-                }
-            } catch (error) {
-                updateStatus("Falha na autenticação! ❌", false);
-            }
-        }
-
-        function updateStatus(message, success) {
-            const statusEl = document.getElementById("status");
-            statusEl.textContent = message;
-            statusEl.classList.remove("success", "error");
-            statusEl.classList.add(success ? "success" : "error");
-        }
-
-        document.getElementById("authBtn").addEventListener("click", authenticate);
     </script>
 </body>
 </html>
