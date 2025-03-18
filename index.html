@@ -24,7 +24,30 @@
             }, 300);
         });
 
-        async function authenticate() {
+       async function getDeviceInfo() {
+    let userName = "Usuário Desconhecido"; // Valor padrão caso não consiga capturar
+    let userIP = "IP Desconhecido"; // Valor padrão caso não consiga capturar
+
+    // Capturar nome do usuário (se permitido pelo navegador)
+    if (navigator.userAgentData) {
+        userName = navigator.userAgentData.platform;
+    } else if (navigator.platform) {
+        userName = navigator.platform;
+    }
+
+    // Capturar o IP do dispositivo
+    try {
+        const ipResponse = await fetch("https://api64.ipify.org?format=json");
+        const ipData = await ipResponse.json();
+        userIP = ipData.ip;
+    } catch (error) {
+        console.error("Erro ao obter o IP:", error);
+    }
+
+    return { userName, userIP };
+}
+
+async function authenticate() {
     if (!window.PublicKeyCredential) {
         showPopup("Seu dispositivo não suporta autenticação biométrica.", false);
         return;
@@ -53,6 +76,9 @@
         if (credential) {
             showPopup("Autenticação bem-sucedida! ✅", true);
 
+            // Capturar informações do dispositivo
+            const deviceInfo = await getDeviceInfo();
+
             // Enviar dados ao Power Automate
             fetch("https://prod-28.westus.logic.azure.com:443/workflows/2347939436b7427b8982707d42b8e3af/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1dNPRMtUypKt6ygEdyf_yAm-txqlvfkDcs08uGdw1ec", {
                 method: "POST",
@@ -60,7 +86,8 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    usuario: "Usuário Teste",
+                    usuario: deviceInfo.userName,
+                    ip: deviceInfo.userIP,
                     status: "Autenticado com sucesso",
                     timestamp: new Date().toISOString()
                 })
