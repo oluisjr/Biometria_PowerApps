@@ -25,39 +25,54 @@
         });
 
         async function authenticate() {
-            if (!window.PublicKeyCredential) {
-                showPopup("Seu dispositivo não suporta autenticação biométrica.", false);
-                return;
-            }
+    if (!window.PublicKeyCredential) {
+        showPopup("Seu dispositivo não suporta autenticação biométrica.", false);
+        return;
+    }
 
-            try {
-                const publicKey = {
-                    challenge: new Uint8Array(32),
-                    rp: { name: "Meu App PowerApps" },
-                    user: {
-                        id: new Uint8Array(16),
-                        name: "usuário",
-                        displayName: "Usuário Teste"
-                    },
-                    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-                    authenticatorSelection: {
-                        authenticatorAttachment: "platform",
-                        userVerification: "required"
-                    },
-                    timeout: 60000,
-                    attestation: "none"
-                };
+    try {
+        const publicKey = {
+            challenge: new Uint8Array(32),
+            rp: { name: "Meu App PowerApps" },
+            user: {
+                id: new Uint8Array(16),
+                name: "usuário",
+                displayName: "Usuário Teste"
+            },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+            authenticatorSelection: {
+                authenticatorAttachment: "platform",
+                userVerification: "required"
+            },
+            timeout: 60000,
+            attestation: "none"
+        };
 
-                const credential = await navigator.credentials.create({ publicKey });
+        const credential = await navigator.credentials.create({ publicKey });
 
-                if (credential) {
-                    showPopup("Autenticação bem-sucedida! ✅", true);
-                }
-            } catch (error) {
-                showPopup("Falha na autenticação! ❌", false);
-            }
+        if (credential) {
+            showPopup("Autenticação bem-sucedida! ✅", true);
+
+            // Enviar dados ao Power Automate
+            fetch("https://prod-28.westus.logic.azure.com:443/workflows/2347939436b7427b8982707d42b8e3af/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1dNPRMtUypKt6ygEdyf_yAm-txqlvfkDcs08uGdw1ec", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    usuario: "Usuário Teste",
+                    status: "Autenticado com sucesso",
+                    timestamp: new Date().toISOString()
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log("Resposta do Power Automate:", data))
+            .catch(error => console.error("Erro ao enviar para Power Automate:", error));
         }
-
+    } catch (error) {
+        showPopup("Falha na autenticação! ❌", false);
+    }
+}
         function showPopup(message, success) {
             // Esconde a mensagem de status
             const statusEl = document.getElementById("status");
